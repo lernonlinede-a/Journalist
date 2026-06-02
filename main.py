@@ -16,53 +16,45 @@ def get_news_brief():
         messages=[
             {
                 "role": "user",
-                "content": f"""Bugün {today} tarihli güncel haberleri web'de ara ve aşağıdaki formatta Türkçe HTML haber bülteni hazırla.
+                "content": f"""Bugün {today} tarihli güncel haberleri web'de ara ve Türkçe HTML haber bülteni hazırla.
 
-ANA KATEGORİLER:
+ÖNEMLİ KISITLAMALAR:
+- Her haber özeti MAX 2 cümle olsun (kısa ve öz)
+- VTR önerisi MAX 1 cümle
+- Uzman önerisi MAX 2 isim
+- Tüm uzmanlar Ankara merkezli olsun (Ankara üniversiteleri, Ankara'daki düşünce kuruluşları, Ankara'daki eski bürokratlar)
 
-1. TÜRKİYE
-   a) İÇ SİYASET HABERLERİ → EN AZ 5 haber
-      - Cumhurbaşkanı, Cumhurbaşkanı Yardımcısı, Bakanlar, CHP, MHP, İYİ Parti, HDP/DEM Parti açıklamaları ve ziyaretleri
-      - Eğer bir lider bugün bir ziyaret veya etkinliğe katılacaksa, o ziyaretin YAKIN TARİHSEL ARKA PLANINI yaz. Örn: "Erdoğan bugün Sayıştay'ın 164. Kuruluş Yıl Dönümü Töreni'ne katılacak. Erdoğan geçen hafta yaptığı kabine toplantısı sonrası CHP'deki tartışmalara 'Ana muhalefet içindeki tartışmalar bizi ilgilendirmiyor' demişti."
-      - Meclis gündemi, ekonomi kararları, iç gelişmeler
+KATEGORİLER:
 
-   b) 3. SAYFA HABERLERİ → EN AZ 8 haber
-      - Suç, kaza, yangın, cinayet, sosyal olaylar
-      - Her haber için yaratıcı VTR önerisi: olayın arka planına odaklan
-      - Örn: okul saldırısı → "çocuklarda şiddet psikolojisi", "poligonda silah kullanma yaşı sınırı" gibi bağlantılı haberler öner
+1. TÜRKİYE / İÇ SİYASET → EN AZ 5 haber
+- Lider haberleri için 1 cümle yakın tarihsel arka plan ekle
+- Meclis, hükümet, muhalefet gelişmeleri
 
-2. DIŞ SİYASET GÜNDEMİ → EN AZ 5 haber
-   - Dünya liderlerinin temasları, ziyaretler, açıklamalar
-   - ABD, Avrupa, Ortadoğu, Asya gelişmeleri
-   - Türkiye'nin dış politikasını etkileyen gelişmeler
-   - Her haber için uzman ve VTR önerisi
+2. TÜRKİYE / 3. SAYFA → EN AZ 8 haber
+- Suç, kaza, sosyal olaylar
+- Yaratıcı VTR önerisi: olayın arka planına odaklan
 
-Her haber için şu HTML yapısını kullan:
+3. DIŞ SİYASET GÜNDEMİ → EN AZ 5 haber
+- Dünya liderleri temasları
+- Türkiye'yi etkileyen dış gelişmeler
 
+Her haber için HTML:
 <div class="haber">
-  <h3 class="haber-baslik">HABER BAŞLIĞI</h3>
-  <p class="haber-ozet">Haberin 2-3 cümle özeti. Lider haberleri için yakın tarihsel arka plan da ekle.</p>
-  <div class="vtr">
-    <span class="vtr-label">📹 VTR ÖNERİSİ:</span> Somut ve yaratıcı muhabir haberi önerisi.
-  </div>
-  <div class="uzman">
-    <span class="uzman-label">👤 UZMAN ÖNERİSİ:</span>
-    <ul>
-      <li>İsim Soyisim - Unvan - Kurum</li>
-      <li>İsim Soyisim - Unvan - Kurum</li>
-    </ul>
-  </div>
+  <h3 class="haber-baslik">BAŞLIK</h3>
+  <p class="haber-ozet">Max 2 cümle özet.</p>
+  <div class="vtr"><span class="vtr-label">📹 VTR:</span> Max 1 cümle öneri.</div>
+  <div class="uzman"><span class="uzman-label">👤 UZMAN:</span><ul><li>İsim - Unvan - Ankara'daki Kurum</li><li>İsim - Unvan - Ankara'daki Kurum</li></ul></div>
 </div>
 
-Ana kategori başlıkları:
+Bölge başlıkları:
 <h2 class="bolge turkiye">🇹🇷 TÜRKİYE</h2>
 <h2 class="bolge dis-siyaset">🌍 DIŞ SİYASET GÜNDEMİ</h2>
 
-Alt kategori başlıkları:
+Alt kategoriler:
 <h3 class="alt-kat ic-siyaset">⚖️ İÇ SİYASET HABERLERİ</h3>
 <h3 class="alt-kat uc-sayfa">📋 3. SAYFA HABERLERİ</h3>
 
-SADECE HTML içeriği döndür, başka açıklama yazma."""
+SADECE HTML içeriği döndür."""
             }
         ]
     )
@@ -72,131 +64,28 @@ SADECE HTML içeriği döndür, başka açıklama yazma."""
         if hasattr(block, "text"):
             result += block.text
 
-    html = f"""
-    <html>
-    <head>
-    <meta charset="UTF-8">
-    <style>
-        body {{
-            font-family: Georgia, 'Times New Roman', serif;
-            max-width: 950px;
-            margin: 0 auto;
-            background: #FAF8F4;
-            padding: 20px;
-            color: #1A1A1A;
-        }}
-        h1 {{
-            background: #1A1A1A;
-            color: #FAF8F4;
-            padding: 25px;
-            border-radius: 10px;
-            text-align: center;
-            font-size: 26px;
-            margin-bottom: 30px;
-            letter-spacing: 1px;
-        }}
-        h2.bolge {{
-            color: #FAF8F4;
-            padding: 14px 20px;
-            border-radius: 8px;
-            font-size: 22px;
-            margin-top: 40px;
-            margin-bottom: 5px;
-        }}
-        .turkiye {{ background: #C8102E; }}
-        .dis-siyaset {{ background: #1E3A8A; }}
-
-        h3.alt-kat {{
-            font-size: 15px;
-            padding: 7px 15px;
-            border-radius: 5px;
-            margin: 15px 0 8px 0;
-            color: #FAF8F4;
-            display: inline-block;
-        }}
-        .ic-siyaset {{ background: #6B7280; }}
-        .uc-sayfa {{ background: #1A1A1A; }}
-
-        .haber {{
-            background: #ffffff;
-            border-radius: 8px;
-            padding: 20px 22px;
-            margin: 10px 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-            border-left: 5px solid #1A1A1A;
-        }}
-        .haber-baslik {{
-            color: #1A1A1A;
-            font-size: 17px;
-            font-weight: bold;
-            margin: 0 0 10px 0;
-            line-height: 1.4;
-        }}
-        .haber-ozet {{
-            color: #1A1A1A;
-            font-size: 15px;
-            line-height: 1.75;
-            margin: 0 0 14px 0;
-        }}
-        .arka-plan {{
-            background: #fef3c7;
-            border-left: 4px solid #F4B400;
-            padding: 10px 14px;
-            margin: 10px 0;
-            border-radius: 5px;
-            font-size: 14px;
-            color: #1A1A1A;
-            line-height: 1.6;
-        }}
-        .arka-plan-label {{
-            font-weight: bold;
-            color: #b38a00;
-        }}
-        .vtr {{
-            background: #f0fce0;
-            border-left: 5px solid #84CC16;
-            padding: 12px 15px;
-            margin-top: 12px;
-            border-radius: 5px;
-            color: #1A1A1A;
-            font-size: 14px;
-            line-height: 1.6;
-        }}
-        .vtr-label {{
-            font-weight: bold;
-            color: #3d6b00;
-            font-size: 15px;
-        }}
-        .uzman {{
-            background: #f3f4f6;
-            border-left: 5px solid #6B7280;
-            padding: 12px 15px;
-            margin-top: 10px;
-            border-radius: 5px;
-            color: #1A1A1A;
-            font-size: 14px;
-        }}
-        .uzman-label {{
-            font-weight: bold;
-            color: #374151;
-            font-size: 15px;
-        }}
-        .uzman ul {{
-            margin: 8px 0 0 0;
-            padding-left: 20px;
-        }}
-        .uzman ul li {{
-            margin: 5px 0;
-            color: #1A1A1A;
-        }}
-    </style>
-    </head>
-    <body>
-    <h1>📰 Günlük Haber Bülteni — {today}</h1>
-    {result}
-    </body>
-    </html>
-    """
+    html = f"""<html>
+<head><meta charset="UTF-8">
+<style>
+body{{font-family:Arial,sans-serif;max-width:900px;margin:0 auto;background:#FAF8F4;padding:15px;color:#1A1A1A;}}
+h1{{background:#1A1A1A;color:#FAF8F4;padding:20px;border-radius:8px;text-align:center;font-size:22px;margin-bottom:25px;}}
+h2.bolge{{color:#FAF8F4;padding:12px 18px;border-radius:6px;font-size:19px;margin-top:30px;margin-bottom:4px;}}
+.turkiye{{background:#C8102E;}}.dis-siyaset{{background:#1E3A8A;}}
+h3.alt-kat{{font-size:13px;padding:6px 12px;border-radius:4px;margin:12px 0 6px 0;color:#FAF8F4;display:inline-block;}}
+.ic-siyaset{{background:#6B7280;}}.uc-sayfa{{background:#1A1A1A;}}
+.haber{{background:#fff;border-radius:6px;padding:14px 18px;margin:8px 0;box-shadow:0 1px 5px rgba(0,0,0,0.08);border-left:4px solid #1A1A1A;}}
+.haber-baslik{{color:#1A1A1A;font-size:15px;font-weight:bold;margin:0 0 8px 0;line-height:1.4;}}
+.haber-ozet{{color:#1A1A1A;font-size:13px;line-height:1.65;margin:0 0 10px 0;}}
+.vtr{{background:#f0fce0;border-left:4px solid #84CC16;padding:8px 12px;margin-top:8px;border-radius:4px;color:#1A1A1A;font-size:12px;}}
+.vtr-label{{font-weight:bold;color:#3d6b00;}}
+.uzman{{background:#f3f4f6;border-left:4px solid #6B7280;padding:8px 12px;margin-top:6px;border-radius:4px;font-size:12px;}}
+.uzman-label{{font-weight:bold;color:#374151;}}
+.uzman ul{{margin:5px 0 0 0;padding-left:16px;}}.uzman ul li{{margin:3px 0;color:#1A1A1A;}}
+</style></head>
+<body>
+<h1>📰 Günlük Haber Bülteni — {today}</h1>
+{result}
+</body></html>"""
     return html
 
 def send_email(content):
