@@ -17,7 +17,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install anthropic requests cryptography
+        run: pip install anthropic google-auth google-api-python-client
 
       - name: Run main script
         env:
