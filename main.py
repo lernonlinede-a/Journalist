@@ -18,25 +18,32 @@ def get_news_brief():
                 "role": "user",
                 "content": f"""Bugün {today} tarihli güncel haberleri web'de ara ve aşağıdaki formatta Türkçe HTML haber bülteni hazırla.
 
-KATEGORİLER VE HABER SAYILARI:
-- TÜRKİYE / Siyaset → EN AZ 5 haber
-- TÜRKİYE / 3. Sayfa → EN AZ 5 haber
-- ABD / Siyaset → 3 haber
-- ABD / 3. Sayfa → 3 haber
-- İNGİLTERE / Siyaset → 3 haber
-- İNGİLTERE / 3. Sayfa → 3 haber
-- ORTADOĞU / Siyaset → 3 haber
-- ORTADOĞU / 3. Sayfa → 3 haber
-- AVRUPA / Siyaset → 3 haber
-- AVRUPA / 3. Sayfa → 3 haber
+ANA KATEGORİLER:
+
+1. TÜRKİYE
+   a) İÇ SİYASET HABERLERİ → EN AZ 5 haber
+      - Cumhurbaşkanı, Cumhurbaşkanı Yardımcısı, Bakanlar, CHP, MHP, İYİ Parti, HDP/DEM Parti açıklamaları ve ziyaretleri
+      - Eğer bir lider bugün bir ziyaret veya etkinliğe katılacaksa, o ziyaretin YAKIN TARİHSEL ARKA PLANINI yaz. Örn: "Erdoğan bugün Sayıştay'ın 164. Kuruluş Yıl Dönümü Töreni'ne katılacak. Erdoğan geçen hafta yaptığı kabine toplantısı sonrası CHP'deki tartışmalara 'Ana muhalefet içindeki tartışmalar bizi ilgilendirmiyor' demişti."
+      - Meclis gündemi, ekonomi kararları, iç gelişmeler
+
+   b) 3. SAYFA HABERLERİ → EN AZ 8 haber
+      - Suç, kaza, yangın, cinayet, sosyal olaylar
+      - Her haber için yaratıcı VTR önerisi: olayın arka planına odaklan
+      - Örn: okul saldırısı → "çocuklarda şiddet psikolojisi", "poligonda silah kullanma yaşı sınırı" gibi bağlantılı haberler öner
+
+2. DIŞ SİYASET GÜNDEMİ → EN AZ 5 haber
+   - Dünya liderlerinin temasları, ziyaretler, açıklamalar
+   - ABD, Avrupa, Ortadoğu, Asya gelişmeleri
+   - Türkiye'nin dış politikasını etkileyen gelişmeler
+   - Her haber için uzman ve VTR önerisi
 
 Her haber için şu HTML yapısını kullan:
 
 <div class="haber">
   <h3 class="haber-baslik">HABER BAŞLIĞI</h3>
-  <p class="haber-ozet">Haberin 2-3 cümle özeti. Net ve okunaklı.</p>
+  <p class="haber-ozet">Haberin 2-3 cümle özeti. Lider haberleri için yakın tarihsel arka plan da ekle.</p>
   <div class="vtr">
-    <span class="vtr-label">📹 VTR ÖNERİSİ:</span> Muhabir haberi önerisi buraya.
+    <span class="vtr-label">📹 VTR ÖNERİSİ:</span> Somut ve yaratıcı muhabir haberi önerisi.
   </div>
   <div class="uzman">
     <span class="uzman-label">👤 UZMAN ÖNERİSİ:</span>
@@ -47,20 +54,15 @@ Her haber için şu HTML yapısını kullan:
   </div>
 </div>
 
-Bölge başlıkları için şu class yapısını kullan:
-- Türkiye: <h2 class="bolge turkiye">🇹🇷 TÜRKİYE</h2>
-- ABD: <h2 class="bolge abd">🇺🇸 ABD</h2>
-- İngiltere: <h2 class="bolge ingiltere">🇬🇧 İNGİLTERE</h2>
-- Ortadoğu: <h2 class="bolge ortadogu">🌙 ORTADOĞU</h2>
-- Avrupa: <h2 class="bolge avrupa">🇪🇺 AVRUPA</h2>
+Ana kategori başlıkları:
+<h2 class="bolge turkiye">🇹🇷 TÜRKİYE</h2>
+<h2 class="bolge dis-siyaset">🌍 DIŞ SİYASET GÜNDEMİ</h2>
 
 Alt kategori başlıkları:
-- Siyaset: <h3 class="alt-kat siyaset">⚖️ SİYASET</h3>
-- 3. Sayfa: <h3 class="alt-kat uc-sayfa">📋 3. SAYFA</h3>
+<h3 class="alt-kat ic-siyaset">⚖️ İÇ SİYASET HABERLERİ</h3>
+<h3 class="alt-kat uc-sayfa">📋 3. SAYFA HABERLERİ</h3>
 
-Türkiye 3. Sayfa haberleri için VTR önerileri yaratıcı olsun — olayın arka planına odaklanan haberler öner.
-Siyaset haberlerinde somut uzman isimleri ver.
-SADECE HTML içeriği döndür."""
+SADECE HTML içeriği döndür, başka açıklama yazma."""
             }
         ]
     )
@@ -102,20 +104,17 @@ SADECE HTML içeriği döndür."""
             margin-bottom: 5px;
         }}
         .turkiye {{ background: #C8102E; }}
-        .abd {{ background: #1E3A8A; }}
-        .ingiltere {{ background: #012169; }}
-        .ortadogu {{ background: #b38a00; color: #1A1A1A !important; }}
-        .avrupa {{ background: #F87171; color: #1A1A1A !important; }}
+        .dis-siyaset {{ background: #1E3A8A; }}
 
         h3.alt-kat {{
             font-size: 15px;
             padding: 7px 15px;
             border-radius: 5px;
-            margin: 12px 0 8px 0;
+            margin: 15px 0 8px 0;
             color: #FAF8F4;
             display: inline-block;
         }}
-        .siyaset {{ background: #6B7280; }}
+        .ic-siyaset {{ background: #6B7280; }}
         .uc-sayfa {{ background: #1A1A1A; }}
 
         .haber {{
@@ -138,6 +137,20 @@ SADECE HTML içeriği döndür."""
             font-size: 15px;
             line-height: 1.75;
             margin: 0 0 14px 0;
+        }}
+        .arka-plan {{
+            background: #fef3c7;
+            border-left: 4px solid #F4B400;
+            padding: 10px 14px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-size: 14px;
+            color: #1A1A1A;
+            line-height: 1.6;
+        }}
+        .arka-plan-label {{
+            font-weight: bold;
+            color: #b38a00;
         }}
         .vtr {{
             background: #f0fce0;
@@ -189,21 +202,21 @@ SADECE HTML içeriği döndür."""
 def send_email(content):
     sender = os.environ["GMAIL_SENDER"]
     password = os.environ["GMAIL_APP_PASSWORD"]
-    recipient = os.environ["RECIPIENT_EMAIL"]
+    recipients = os.environ["RECIPIENT_EMAIL"].split(",")
 
     msg = MIMEMultipart("alternative")
     msg["Subject"] = f"📰 Günlük Haber Bülteni - {datetime.now().strftime('%d.%m.%Y')}"
     msg["From"] = sender
-    msg["To"] = recipient
+    msg["To"] = ", ".join(recipients)
 
     part = MIMEText(content, "html")
     msg.attach(part)
 
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
         server.login(sender, password)
-        server.sendmail(sender, recipient, msg.as_string())
+        server.sendmail(sender, recipients, msg.as_string())
 
-    print("Email gönderildi!")
+    print(f"Email gönderildi: {', '.join(recipients)}")
 
 if __name__ == "__main__":
     print("Haberler derleniyor...")
