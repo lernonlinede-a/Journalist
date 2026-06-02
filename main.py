@@ -2,7 +2,6 @@ import os
 import smtplib
 import anthropic
 import json
-import base64
 import re
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -25,8 +24,6 @@ KATEGORİLER:
 1. Türkiye İç Siyaset → EN AZ 5 haber (lider haberleri için yakın tarihsel arka plan ekle)
 2. Türkiye 3. Sayfa → EN AZ 8 haber (yaratıcı VTR önerileri: olayın arka planına odaklan)
 3. Dış Siyaset Gündemi → EN AZ 5 haber (dünya liderleri temasları, Türkiye'yi etkileyen gelişmeler)
-
-Her haber için şu HTML kartını kullan:
 
 Türkiye İç Siyaset kartları (border #C8102E):
 <div class="card" style="border-top-color:#C8102E">
@@ -59,19 +56,12 @@ Dış Siyaset kartları (border #1E3A8A):
   ...aynı yapı...
 </div>
 
-ÇIKTI — sadece şu yapıda döndür:
-<section data-kat="ic-siyaset">
-[kartlar]
-</section>
-<section data-kat="uc-sayfa">
-[kartlar]
-</section>
-<section data-kat="dis-siyaset">
-[kartlar]
-</section>
+ÇIKTI:
+<section data-kat="ic-siyaset">[kartlar]</section>
+<section data-kat="uc-sayfa">[kartlar]</section>
+<section data-kat="dis-siyaset">[kartlar]</section>
 
-Uzmanlar Ankara merkezli olsun: ODTÜ, Hacettepe, Ankara Üniversitesi, Bilkent, SETA, TEPAV, EDAM, Dışişleri Bakanlığı.
-SADECE HTML döndür."""
+Uzmanlar Ankara merkezli olsun. SADECE HTML döndür."""
             }
         ]
     )
@@ -87,10 +77,8 @@ SADECE HTML döndür."""
 
     m = re.search(r'<section data-kat="ic-siyaset">([\s\S]*?)</section>', raw)
     if m: ic_siyaset = m.group(1)
-
     m = re.search(r'<section data-kat="uc-sayfa">([\s\S]*?)</section>', raw)
     if m: uc_sayfa = m.group(1)
-
     m = re.search(r'<section data-kat="dis-siyaset">([\s\S]*?)</section>', raw)
     if m: dis_siyaset = m.group(1)
 
@@ -151,87 +139,44 @@ SADECE HTML döndür."""
     return html
 
 def upload_to_drive(html_content, filename):
-    import urllib.request
-    import urllib.parse
+    from google.oauth2 import service_account
+    from googleapiclient.discovery import build
+    from googleapiclient.http import MediaInMemoryUpload
 
-    sa_json = json.loads(os.environ["GOOGLE_SERVICE_ACCOUNT_JSON"])
+    sa_info = json.loads(os.environ["GOOGLE_SERVICE_ACCOUNT_JSON"])
     folder_id = os.environ["GOOGLE_DRIVE_FOLDER_ID"]
 
-    # JWT token oluştur
-    import time
-    import hmac
-    import hashlib
-
-    header = base64.urlsafe_b64encode(json.dumps({"alg": "RS256", "typ": "JWT"}).encode()).rstrip(b'=').decode()
-    now = int(time.time())
-    claim = base64.urlsafe_b64encode(json.dumps({
-        "iss": sa_json["client_email"],
-        "scope": "https://www.googleapis.com/auth/drive.file",
-        "aud": "https://oauth2.googleapis.com/token",
-        "exp": now + 3600,
-        "iat": now
-    }).encode()).rstrip(b'=').decode()
-
-    from cryptography.hazmat.primitives import hashes, serialization
-    from cryptography.hazmat.primitives.asymmetric import padding
-    from cryptography.hazmat.backends import default_backend
-
-    private_key = serialization.load_pem_private_key(
-        sa_json["private_key"].encode(),
-        password=None,
-        backend=default_backend()
+    creds = service_account.Credentials.from_service_account_info(
+        sa_info,
+        scopes=["https://www.googleapis.com/auth/drive"]
     )
 
-    signing_input = f"{header}.{claim}".encode()
-    signature = private_key.sign(signing_input, padding.PKCS1v15(), hashes.SHA256())
-    sig = base64.urlsafe_b64encode(signature).rstrip(b'=').decode()
-    jwt_token = f"{header}.{claim}.{sig}"
+    service = build("drive", "v3", credentials=creds)
 
-    # Access token al
-    token_data = urllib.parse.urlencode({
-        "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
-        "assertion": jwt_token
-    }).encode()
+    file_metadata = {
+        "name": filename,
+        "parents": [folder_id],
+        "mimeType": "text/html"
+    }
 
-    token_req = urllib.request.Request(
-        "https://oauth2.googleapis.com/token",
-        data=token_data,
-        headers={"Content-Type": "application/x-www-form-urlencoded"}
+    media = MediaInMemoryUpload(
+        html_content.encode("utf-8"),
+        mimetype="text/html"
     )
-    with urllib.request.urlopen(token_req) as r:
-        access_token = json.loads(r.read())["access_token"]
 
-    # Dosyayı Drive'a yükle
-    boundary = "boundary123456"
-    metadata = json.dumps({"name": filename, "parents": [folder_id], "mimeType": "text/html"})
-    body = (
-        f"--{boundary}\r\nContent-Type: application/json\r\n\r\n{metadata}\r\n"
-        f"--{boundary}\r\nContent-Type: text/html\r\n\r\n{html_content}\r\n"
-        f"--{boundary}--"
-    ).encode("utf-8")
+    file = service.files().create(
+        body=file_metadata,
+        media_body=media,
+        fields="id"
+    ).execute()
 
-    upload_req = urllib.request.Request(
-        "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
-        data=body,
-        headers={
-            "Authorization": f"Bearer {access_token}",
-            "Content-Type": f"multipart/related; boundary={boundary}"
-        }
-    )
-    with urllib.request.urlopen(upload_req) as r:
-        file_data = json.loads(r.read())
-        file_id = file_data["id"]
+    file_id = file.get("id")
 
-    # Dosyayı herkese açık yap
-    perm_req = urllib.request.Request(
-        f"https://www.googleapis.com/drive/v3/files/{file_id}/permissions",
-        data=json.dumps({"role": "reader", "type": "anyone"}).encode(),
-        headers={
-            "Authorization": f"Bearer {access_token}",
-            "Content-Type": "application/json"
-        }
-    )
-    urllib.request.urlopen(perm_req)
+    # Herkese açık yap
+    service.permissions().create(
+        fileId=file_id,
+        body={"role": "reader", "type": "anyone"}
+    ).execute()
 
     return f"https://drive.google.com/file/d/{file_id}/view"
 
