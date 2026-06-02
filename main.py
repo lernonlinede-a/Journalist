@@ -16,37 +16,51 @@ def get_news_brief():
         messages=[
             {
                 "role": "user",
-                "content": f"""Bugün {today} tarihli güncel haberleri web'de ara ve aşağıdaki formatta Türkçe bir haber bülteni hazırla.
+                "content": f"""Bugün {today} tarihli güncel haberleri web'de ara ve aşağıdaki formatta Türkçe HTML haber bülteni hazırla.
 
-BÖLGELER ve KATEGORİLER:
-1. TÜRKİYE
-   - Siyaset
-   - 3. Sayfa
-2. ABD
-   - Siyaset
-   - 3. Sayfa
-3. İNGİLTERE
-   - Siyaset
-   - 3. Sayfa
-4. ORTADOĞU
-   - Siyaset
-   - 3. Sayfa
-5. AVRUPA
-   - Siyaset
-   - 3. Sayfa
+KATEGORİLER VE HABER SAYILARI:
+- TÜRKİYE / Siyaset → EN AZ 5 haber
+- TÜRKİYE / 3. Sayfa → EN AZ 5 haber
+- ABD / Siyaset → 3 haber
+- ABD / 3. Sayfa → 3 haber
+- İNGİLTERE / Siyaset → 3 haber
+- İNGİLTERE / 3. Sayfa → 3 haber
+- ORTADOĞU / Siyaset → 3 haber
+- ORTADOĞU / 3. Sayfa → 3 haber
+- AVRUPA / Siyaset → 3 haber
+- AVRUPA / 3. Sayfa → 3 haber
 
-Her alt kategori için 3-4 güncel haber başlığı bul.
+Her haber için şu HTML yapısını kullan:
 
-Her haber için şunları yaz:
-- Haber başlığı ve 2-3 cümle özet
-- VTR ÖNERİSİ: Televizyon muhabiri olarak bu haber için nasıl bir muhabir haberi yapılabilir? (somut öneri)
-- UZMAN ÖNERİSİ: Bu haber için kimlerle görüşülebilir? (isim, unvan, kurum olarak somut isimler ver)
+<div class="haber">
+  <h3 class="haber-baslik">HABER BAŞLIĞI</h3>
+  <p class="haber-ozet">Haberin 2-3 cümle özeti. Net ve okunaklı.</p>
+  <div class="vtr">
+    <span class="vtr-label">📹 VTR ÖNERİSİ:</span> Muhabir haberi önerisi buraya.
+  </div>
+  <div class="uzman">
+    <span class="uzman-label">👤 UZMAN ÖNERİSİ:</span>
+    <ul>
+      <li>İsim Soyisim - Unvan - Kurum</li>
+      <li>İsim Soyisim - Unvan - Kurum</li>
+    </ul>
+  </div>
+</div>
 
-Siyaset haberleri için: dış politika uzmanları, akademisyenler, eski diplomatlar, düşünce kuruluşu temsilcileri öner.
+Bölge başlıkları için şu class yapısını kullan:
+- Türkiye: <h2 class="bolge turkiye">🇹🇷 TÜRKİYE</h2>
+- ABD: <h2 class="bolge abd">🇺🇸 ABD</h2>
+- İngiltere: <h2 class="bolge ingiltere">🇬🇧 İNGİLTERE</h2>
+- Ortadoğu: <h2 class="bolge ortadogu">🌙 ORTADOĞU</h2>
+- Avrupa: <h2 class="bolge avrupa">🇪🇺 AVRUPA</h2>
 
-3. Sayfa haberleri için: olayın arka planına odaklanan yaratıcı muhabir önerileri sun. Örneğin bir okul saldırısı haberi için "çocuklarda şiddet eğilimi", "silah erişimi yaşı", "okul güvenliği" gibi bağlantılı konularda VTR fikirleri üret.
+Alt kategori başlıkları:
+- Siyaset: <h3 class="alt-kat siyaset">⚖️ SİYASET</h3>
+- 3. Sayfa: <h3 class="alt-kat uc-sayfa">📋 3. SAYFA</h3>
 
-ÇIKTI FORMATI: Güzel HTML formatında, her bölge farklı renkte kart olarak, muhabir önerileri sarı kutucukta, uzman isimleri mavi kutucukta göster."""
+Türkiye 3. Sayfa haberleri için VTR önerileri yaratıcı olsun — olayın arka planına odaklanan haberler öner.
+Siyaset haberlerinde somut uzman isimleri ver.
+SADECE HTML içeriği döndür."""
             }
         ]
     )
@@ -56,23 +70,112 @@ Siyaset haberleri için: dış politika uzmanları, akademisyenler, eski diploma
         if hasattr(block, "text"):
             result += block.text
 
-    # HTML wrap
     html = f"""
     <html>
     <head>
     <meta charset="UTF-8">
     <style>
-        body {{ font-family: Arial, sans-serif; max-width: 900px; margin: 0 auto; background: #f5f5f5; padding: 20px; }}
-        h1 {{ background: #1a1a2e; color: white; padding: 20px; border-radius: 10px; text-align: center; }}
-        h2 {{ color: #1a1a2e; border-left: 5px solid #e94560; padding-left: 10px; margin-top: 30px; }}
-        h3 {{ color: #444; margin-left: 15px; }}
-        .haber {{ background: white; border-radius: 8px; padding: 15px; margin: 10px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }}
-        .vtr {{ background: #fff9c4; border-left: 4px solid #f9a825; padding: 10px; margin-top: 10px; border-radius: 5px; }}
-        .uzman {{ background: #e3f2fd; border-left: 4px solid #1976d2; padding: 10px; margin-top: 8px; border-radius: 5px; }}
-        .vtr-label {{ font-weight: bold; color: #f57f17; }}
-        .uzman-label {{ font-weight: bold; color: #1565c0; }}
-        .kategori-siyaset {{ border-top: 3px solid #c62828; }}
-        .kategori-3sayfa {{ border-top: 3px solid #6a1b9a; }}
+        body {{
+            font-family: Georgia, 'Times New Roman', serif;
+            max-width: 950px;
+            margin: 0 auto;
+            background: #FAF8F4;
+            padding: 20px;
+            color: #1A1A1A;
+        }}
+        h1 {{
+            background: #1A1A1A;
+            color: #FAF8F4;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 26px;
+            margin-bottom: 30px;
+            letter-spacing: 1px;
+        }}
+        h2.bolge {{
+            color: #FAF8F4;
+            padding: 14px 20px;
+            border-radius: 8px;
+            font-size: 22px;
+            margin-top: 40px;
+            margin-bottom: 5px;
+        }}
+        .turkiye {{ background: #C8102E; }}
+        .abd {{ background: #1E3A8A; }}
+        .ingiltere {{ background: #012169; }}
+        .ortadogu {{ background: #b38a00; color: #1A1A1A !important; }}
+        .avrupa {{ background: #F87171; color: #1A1A1A !important; }}
+
+        h3.alt-kat {{
+            font-size: 15px;
+            padding: 7px 15px;
+            border-radius: 5px;
+            margin: 12px 0 8px 0;
+            color: #FAF8F4;
+            display: inline-block;
+        }}
+        .siyaset {{ background: #6B7280; }}
+        .uc-sayfa {{ background: #1A1A1A; }}
+
+        .haber {{
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 20px 22px;
+            margin: 10px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+            border-left: 5px solid #1A1A1A;
+        }}
+        .haber-baslik {{
+            color: #1A1A1A;
+            font-size: 17px;
+            font-weight: bold;
+            margin: 0 0 10px 0;
+            line-height: 1.4;
+        }}
+        .haber-ozet {{
+            color: #1A1A1A;
+            font-size: 15px;
+            line-height: 1.75;
+            margin: 0 0 14px 0;
+        }}
+        .vtr {{
+            background: #f0fce0;
+            border-left: 5px solid #84CC16;
+            padding: 12px 15px;
+            margin-top: 12px;
+            border-radius: 5px;
+            color: #1A1A1A;
+            font-size: 14px;
+            line-height: 1.6;
+        }}
+        .vtr-label {{
+            font-weight: bold;
+            color: #3d6b00;
+            font-size: 15px;
+        }}
+        .uzman {{
+            background: #f3f4f6;
+            border-left: 5px solid #6B7280;
+            padding: 12px 15px;
+            margin-top: 10px;
+            border-radius: 5px;
+            color: #1A1A1A;
+            font-size: 14px;
+        }}
+        .uzman-label {{
+            font-weight: bold;
+            color: #374151;
+            font-size: 15px;
+        }}
+        .uzman ul {{
+            margin: 8px 0 0 0;
+            padding-left: 20px;
+        }}
+        .uzman ul li {{
+            margin: 5px 0;
+            color: #1A1A1A;
+        }}
     </style>
     </head>
     <body>
