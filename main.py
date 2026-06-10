@@ -1,7 +1,6 @@
 import os
 import smtplib
 import anthropic
-import json
 import re
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -138,52 +137,11 @@ Uzmanlar Ankara merkezli olsun. SADECE HTML döndür."""
 
     return html
 
-def upload_to_drive(html_content, filename):
-    from google.oauth2 import service_account
-    from googleapiclient.discovery import build
-    from googleapiclient.http import MediaInMemoryUpload
-
-    sa_info = json.loads(os.environ["GOOGLE_SERVICE_ACCOUNT_JSON"])
-    folder_id = os.environ["GOOGLE_DRIVE_FOLDER_ID"]
-
-    creds = service_account.Credentials.from_service_account_info(
-        sa_info,
-        scopes=["https://www.googleapis.com/auth/drive"]
-    )
-
-    service = build("drive", "v3", credentials=creds)
-
-    file_metadata = {
-        "name": filename,
-        "parents": [folder_id],
-        "mimeType": "text/html"
-    }
-
-    media = MediaInMemoryUpload(
-        html_content.encode("utf-8"),
-        mimetype="text/html"
-    )
-
-    file = service.files().create(
-        body=file_metadata,
-        media_body=media,
-        fields="id"
-    ).execute()
-
-    file_id = file.get("id")
-
-    # Herkese açık yap
-    service.permissions().create(
-        fileId=file_id,
-        body={"role": "reader", "type": "anyone"}
-    ).execute()
-
-    return f"https://drive.google.com/file/d/{file_id}/view"
-
-def send_email(drive_link, today_str):
+def send_email(today_str):
     sender = os.environ["GMAIL_SENDER"]
     password = os.environ["GMAIL_APP_PASSWORD"]
     recipients = os.environ["RECIPIENT_EMAIL"].split(",")
+    pages_url = "https://lernonlinede-a.github.io/Journalist"
 
     msg = MIMEMultipart("alternative")
     msg["Subject"] = f"📺 Günlük Haber Brifing - {today_str}"
@@ -195,7 +153,7 @@ def send_email(drive_link, today_str):
     <div style="max-width:600px;margin:0 auto;background:#1A1A1A;border-radius:12px;padding:30px;text-align:center;">
       <h1 style="color:#F4B400;margin:0 0 10px 0;">📺 Günlük Haber Brifing</h1>
       <p style="color:#aac;font-size:14px;margin:0 0 25px 0;">{today_str}</p>
-      <a href="{drive_link}" style="background:#C8102E;color:white;padding:14px 30px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;">
+      <a href="{pages_url}" style="background:#C8102E;color:white;padding:14px 30px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;">
         📰 Brifingimi Aç
       </a>
       <p style="color:#666;font-size:12px;margin-top:20px;">Gazeteci Asistanı · Claude AI ile oluşturuldu</p>
@@ -214,15 +172,15 @@ def send_email(drive_link, today_str):
 
 if __name__ == "__main__":
     today_str = datetime.now().strftime("%d.%m.%Y")
-    filename = f"brifing_{today_str}.html"
 
     print("Haberler derleniyor...")
     html_content = get_news_brief()
 
-    print("Google Drive'a yükleniyor...")
-    drive_link = upload_to_drive(html_content, filename)
-    print(f"Drive linki: {drive_link}")
+    print("docs/index.html kaydediliyor...")
+    os.makedirs("docs", exist_ok=True)
+    with open("docs/index.html", "w", encoding="utf-8") as f:
+        f.write(html_content)
 
     print("Email gönderiliyor...")
-    send_email(drive_link, today_str)
+    send_email(today_str)
     print("Tamamlandı!")
