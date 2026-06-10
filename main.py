@@ -6,68 +6,30 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 
-def get_news_brief():
-    client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
-    today = datetime.now().strftime("%d %B %Y, %A")
-
+def get_section(client, today, kategori, renk, badge, adet, ekstra):
     message = client.messages.create(
         model="claude-opus-4-5",
-        max_tokens=8000,
+        max_tokens=4000,
         tools=[{"type": "web_search_20250305", "name": "web_search"}],
         messages=[
             {
                 "role": "user",
                 "content": f"""Bugün {today} tarihli güncel haberleri web'de ara.
 
-GÖREV: Aşağıdaki 3 section'ı eksiksiz doldur. Her section mutlaka dolu olmalı.
+GÖREV: {kategori} kategorisinden EN AZ {adet} güncel haber bul ve aşağıdaki HTML kartlarını oluştur.
+{ekstra}
 
-SECTION 1 — Türkiye İç Siyaset (EN AZ 5 haber):
-<section data-kat="ic-siyaset">
-[kartlar buraya]
-</section>
-
-SECTION 2 — Türkiye 3. Sayfa (EN AZ 8 haber):
-<section data-kat="uc-sayfa">
-[kartlar buraya]
-</section>
-
-SECTION 3 — Dış Siyaset Gündemi (EN AZ 5 haber):
-<section data-kat="dis-siyaset">
-[kartlar buraya]
-</section>
-
-Her haber için şu kart yapısını kullan:
-
-Türkiye İç Siyaset kartı:
-<div class="card" style="border-top-color:#C8102E">
-  <span class="card-badge" style="background:#C8102E">Türkiye › İç Siyaset</span>
-  <div class="card-title">GERÇEK HABER BAŞLIĞI</div>
-  <div class="card-meta">KAYNAK · SAAT</div>
-  <p class="ozet">2 cümle özet. Lider haberleri için yakın tarihsel arka plan ekle.</p>
-  <div class="vtr-block">
-    <h4>▶ VTR Önerileri</h4>
-    <div class="vtr-item">Özgün VTR önerisi — somut konu ve angle belirt, "saha haberi yap" deme</div>
-    <div class="vtr-item">Farklı açıdan yaklaşan VTR önerisi</div>
-    <div class="vtr-item">Arka plan veya karşılaştırmalı haber önerisi</div>
-  </div>
-  <div class="expert-block">
-    <h4>Uzman Önerileri</h4>
-    <div class="expert"><strong>İsim Soyisim</strong> — Unvan, Ankara merkezli kurum</div>
-    <div class="expert"><strong>İsim Soyisim</strong> — Unvan, Ankara merkezli kurum</div>
-  </div>
-</div>
-
-Türkiye 3. Sayfa kartı:
-<div class="card" style="border-top-color:#7b2d00">
-  <span class="card-badge" style="background:#7b2d00">Türkiye › 3. Sayfa</span>
+Her haber için şu HTML kartını kullan:
+<div class="card" style="border-top-color:{renk}">
+  <span class="card-badge" style="background:{renk}">{badge}</span>
   <div class="card-title">GERÇEK HABER BAŞLIĞI</div>
   <div class="card-meta">KAYNAK · SAAT</div>
   <p class="ozet">2 cümle özet.</p>
   <div class="vtr-block">
     <h4>▶ VTR Önerileri</h4>
-    <div class="vtr-item">Olayın arka planına odaklanan beklenmedik VTR açısı — örn okul saldırısı için "poligonda silah kullanma yaşı sınırı" gibi</div>
-    <div class="vtr-item">Psikolojik, sosyolojik veya yasal boyutuyla ilgili özgün öneri</div>
-    <div class="vtr-item">Karşılaştırmalı veya tarihsel bağlamda yaratıcı öneri</div>
+    <div class="vtr-item">Özgün VTR önerisi 1 — somut konu ve angle belirt</div>
+    <div class="vtr-item">Farklı açıdan yaratıcı VTR önerisi 2</div>
+    <div class="vtr-item">Arka plan veya karşılaştırmalı öneri 3</div>
   </div>
   <div class="expert-block">
     <h4>Uzman Önerileri</h4>
@@ -76,63 +38,53 @@ Türkiye 3. Sayfa kartı:
   </div>
 </div>
 
-Dış Siyaset kartı:
-<div class="card" style="border-top-color:#1E3A8A">
-  <span class="card-badge" style="background:#1E3A8A">Dış Siyaset Gündemi</span>
-  <div class="card-title">GERÇEK HABER BAŞLIĞI</div>
-  <div class="card-meta">KAYNAK · SAAT</div>
-  <p class="ozet">2 cümle özet. Türkiye ile bağlantısını belirt.</p>
-  <div class="vtr-block">
-    <h4>▶ VTR Önerileri</h4>
-    <div class="vtr-item">Özgün VTR önerisi 1</div>
-    <div class="vtr-item">Özgün VTR önerisi 2</div>
-    <div class="vtr-item">Özgün VTR önerisi 3</div>
-  </div>
-  <div class="expert-block">
-    <h4>Uzman Önerileri</h4>
-    <div class="expert"><strong>İsim Soyisim</strong> — Unvan, Ankara merkezli kurum</div>
-    <div class="expert"><strong>İsim Soyisim</strong> — Unvan, Ankara merkezli kurum</div>
-  </div>
-</div>
-
-ZORUNLU KURALLAR:
-1. 3 section tag HEPSİ dolu olmalı — eksik section kabul edilmez
-2. data-kat değerlerini ASLA değiştirme: ic-siyaset, uc-sayfa, dis-siyaset
-3. Dış Siyaset: dünya liderleri temasları, ABD/Avrupa/Ortadoğu gelişmeleri
-4. VTR önerileri yaratıcı ve özgün olsun
-5. Uzmanlar Ankara merkezli: ODTÜ, Hacettepe, Ankara Üniversitesi, Bilkent, SETA, TEPAV, EDAM
-6. SADECE HTML döndür, başka hiçbir şey yazma"""
+SADECE HTML kartlarını döndür, başka hiçbir şey yazma."""
             }
         ]
     )
 
-    raw = ""
+    result = ""
     for block in message.content:
         if hasattr(block, "text"):
-            raw += block.text
+            result += block.text
+    return result
 
-    ic_siyaset = ""
-    uc_sayfa = ""
-    dis_siyaset = ""
+def get_news_brief():
+    client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+    today = datetime.now().strftime("%d %B %Y, %A")
 
-    m = re.search(r'<section data-kat="ic-siyaset">([\s\S]*?)</section>', raw)
-    if m: ic_siyaset = m.group(1)
+    print("Türkiye İç Siyaset haberleri çekiliyor...")
+    ic_siyaset = get_section(
+        client, today,
+        "Türkiye İç Siyaset",
+        "#C8102E",
+        "Türkiye › İç Siyaset",
+        5,
+        "Lider haberleri için yakın tarihsel arka plan ekle. Meclis, hükümet, muhalefet gelişmeleri dahil et."
+    )
 
-    m = re.search(r'<section data-kat="uc-sayfa">([\s\S]*?)</section>', raw)
-    if m: uc_sayfa = m.group(1)
+    print("Türkiye 3. Sayfa haberleri çekiliyor...")
+    uc_sayfa = get_section(
+        client, today,
+        "Türkiye 3. Sayfa (suç, kaza, sosyal olaylar)",
+        "#7b2d00",
+        "Türkiye › 3. Sayfa",
+        8,
+        "VTR önerileri yaratıcı olsun: olayın arka planına odaklan. Örn: okul saldırısı → 'poligonda silah kullanma yaşı sınırı nedir?' gibi beklenmedik açılar bul."
+    )
 
-    m = re.search(r'<section data-kat="dis-siyaset">([\s\S]*?)</section>', raw)
-    if m: dis_siyaset = m.group(1)
+    print("Dış Siyaset haberleri çekiliyor...")
+    dis_siyaset = get_section(
+        client, today,
+        "Dış Siyaset Gündemi (dünya liderleri temasları, ABD, Avrupa, Ortadoğu, Asya gelişmeleri, Türkiye'yi etkileyen dış gelişmeler)",
+        "#1E3A8A",
+        "Dış Siyaset Gündemi",
+        5,
+        "Dünya liderlerinin temaslarını ve Türkiye'yi etkileyen dış gelişmeleri mutlaka dahil et."
+    )
 
-    # Bulunamazsa raw'dan fallback
-    if not dis_siyaset:
-        m = re.search(r'(?:data-kat="dis-siyaset"|Dış Siyaset)([\s\S]*?)(?:<section|</section>|$)', raw, re.IGNORECASE)
-        if m: dis_siyaset = m.group(1)
-
-    if not ic_siyaset and not uc_sayfa and not dis_siyaset:
-        content_html = f'<div style="padding:20px">{raw}</div>'
-    else:
-        content_html = f"""
+    today_display = datetime.now().strftime("%d %B %Y, %A")
+    content_html = f"""
 <div class="accordion">
   <div class="acc-item open">
     <div class="acc-header" onclick="toggleAcc(this)">
@@ -166,7 +118,6 @@ ZORUNLU KURALLAR:
 </div>
 """
 
-    today_display = datetime.now().strftime("%d %B %Y, %A")
     html = f"""<!DOCTYPE html>
 <html lang="tr">
 <head>
