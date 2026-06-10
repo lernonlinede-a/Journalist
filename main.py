@@ -17,26 +17,38 @@ def get_news_brief():
         messages=[
             {
                 "role": "user",
-                "content": f"""Bugün {today} tarihli güncel haberleri web'de ara ve aşağıdaki HTML bölümlerini eksiksiz doldur.
+                "content": f"""Bugün {today} tarihli güncel haberleri web'de ara.
 
-KATEGORİLER VE HABER SAYILARI:
-1. Türkiye İç Siyaset → EN AZ 5 haber
-2. Türkiye 3. Sayfa → EN AZ 8 haber
-3. Dış Siyaset Gündemi → EN AZ 5 haber
+GÖREV: Aşağıdaki 3 section'ı eksiksiz doldur. Her section mutlaka dolu olmalı.
 
-Her haber kartı için bu HTML yapısını kullan:
+SECTION 1 — Türkiye İç Siyaset (EN AZ 5 haber):
+<section data-kat="ic-siyaset">
+[kartlar buraya]
+</section>
 
-Türkiye İç Siyaset için (renk #C8102E):
+SECTION 2 — Türkiye 3. Sayfa (EN AZ 8 haber):
+<section data-kat="uc-sayfa">
+[kartlar buraya]
+</section>
+
+SECTION 3 — Dış Siyaset Gündemi (EN AZ 5 haber):
+<section data-kat="dis-siyaset">
+[kartlar buraya]
+</section>
+
+Her haber için şu kart yapısını kullan:
+
+Türkiye İç Siyaset kartı:
 <div class="card" style="border-top-color:#C8102E">
   <span class="card-badge" style="background:#C8102E">Türkiye › İç Siyaset</span>
   <div class="card-title">GERÇEK HABER BAŞLIĞI</div>
   <div class="card-meta">KAYNAK · SAAT</div>
-  <p class="ozet">2 cümle özet. Lider haberleri için yakın tarihsel arka plan ekle. Örn: "Erdoğan bugün X'e katılacak. Geçen hafta Y konusunda Z demişti."</p>
+  <p class="ozet">2 cümle özet. Lider haberleri için yakın tarihsel arka plan ekle.</p>
   <div class="vtr-block">
     <h4>▶ VTR Önerileri</h4>
-    <div class="vtr-item">Yaratıcı ve özgün VTR önerisi 1 — sadece "saha haberi yap" deme, somut konu ve angle belirt</div>
-    <div class="vtr-item">Yaratıcı VTR önerisi 2 — farklı bir açıdan yaklaş</div>
-    <div class="vtr-item">Yaratıcı VTR önerisi 3 — arka plan veya karşılaştırmalı haber açısı</div>
+    <div class="vtr-item">Özgün VTR önerisi — somut konu ve angle belirt, "saha haberi yap" deme</div>
+    <div class="vtr-item">Farklı açıdan yaklaşan VTR önerisi</div>
+    <div class="vtr-item">Arka plan veya karşılaştırmalı haber önerisi</div>
   </div>
   <div class="expert-block">
     <h4>Uzman Önerileri</h4>
@@ -45,7 +57,7 @@ Türkiye İç Siyaset için (renk #C8102E):
   </div>
 </div>
 
-Türkiye 3. Sayfa için (renk #7b2d00):
+Türkiye 3. Sayfa kartı:
 <div class="card" style="border-top-color:#7b2d00">
   <span class="card-badge" style="background:#7b2d00">Türkiye › 3. Sayfa</span>
   <div class="card-title">GERÇEK HABER BAŞLIĞI</div>
@@ -53,9 +65,9 @@ Türkiye 3. Sayfa için (renk #7b2d00):
   <p class="ozet">2 cümle özet.</p>
   <div class="vtr-block">
     <h4>▶ VTR Önerileri</h4>
-    <div class="vtr-item">Olayın arka planına odaklanan özgün VTR önerisi — örn: "14 yaşında okul saldırısı → Poligonda silah kullanma yaşı sınırı nedir?" gibi bağlantılı ama beklenmedik açılar bul</div>
-    <div class="vtr-item">Psikolojik, sosyolojik veya yasal boyutuyla ilgili yaratıcı öneri</div>
-    <div class="vtr-item">Karşılaştırmalı veya tarihsel bağlamda bir öneri</div>
+    <div class="vtr-item">Olayın arka planına odaklanan beklenmedik VTR açısı — örn okul saldırısı için "poligonda silah kullanma yaşı sınırı" gibi</div>
+    <div class="vtr-item">Psikolojik, sosyolojik veya yasal boyutuyla ilgili özgün öneri</div>
+    <div class="vtr-item">Karşılaştırmalı veya tarihsel bağlamda yaratıcı öneri</div>
   </div>
   <div class="expert-block">
     <h4>Uzman Önerileri</h4>
@@ -64,17 +76,17 @@ Türkiye 3. Sayfa için (renk #7b2d00):
   </div>
 </div>
 
-Dış Siyaset için (renk #1E3A8A):
+Dış Siyaset kartı:
 <div class="card" style="border-top-color:#1E3A8A">
   <span class="card-badge" style="background:#1E3A8A">Dış Siyaset Gündemi</span>
   <div class="card-title">GERÇEK HABER BAŞLIĞI</div>
   <div class="card-meta">KAYNAK · SAAT</div>
-  <p class="ozet">2 cümle özet. Türkiye ile bağlantısını da belirt.</p>
+  <p class="ozet">2 cümle özet. Türkiye ile bağlantısını belirt.</p>
   <div class="vtr-block">
     <h4>▶ VTR Önerileri</h4>
-    <div class="vtr-item">Yaratıcı VTR önerisi 1</div>
-    <div class="vtr-item">Yaratıcı VTR önerisi 2</div>
-    <div class="vtr-item">Yaratıcı VTR önerisi 3</div>
+    <div class="vtr-item">Özgün VTR önerisi 1</div>
+    <div class="vtr-item">Özgün VTR önerisi 2</div>
+    <div class="vtr-item">Özgün VTR önerisi 3</div>
   </div>
   <div class="expert-block">
     <h4>Uzman Önerileri</h4>
@@ -83,21 +95,13 @@ Dış Siyaset için (renk #1E3A8A):
   </div>
 </div>
 
-ÇIKTI FORMATI — AYNEN BU YAPIDA DÖNDÜR:
-<section data-kat="ic-siyaset">
-[Türkiye İç Siyaset kartları buraya — EN AZ 5 adet]
-</section>
-<section data-kat="uc-sayfa">
-[Türkiye 3. Sayfa kartları buraya — EN AZ 8 adet]
-</section>
-<section data-kat="dis-siyaset">
-[Dış Siyaset Gündemi kartları buraya — EN AZ 5 adet]
-</section>
-
-UYARI: 3 section tag'inin HEPSİ mutlaka dolu olmalı. data-kat değerlerini değiştirme.
-VTR önerileri özgün ve yaratıcı olsun — "saha haberi yapılabilir" gibi genel ifadeler kullanma.
-Uzmanlar Ankara merkezli olsun: ODTÜ, Hacettepe, Ankara Üniversitesi, Bilkent, SETA, TEPAV, EDAM.
-SADECE HTML döndür, açıklama yazma."""
+ZORUNLU KURALLAR:
+1. 3 section tag HEPSİ dolu olmalı — eksik section kabul edilmez
+2. data-kat değerlerini ASLA değiştirme: ic-siyaset, uc-sayfa, dis-siyaset
+3. Dış Siyaset: dünya liderleri temasları, ABD/Avrupa/Ortadoğu gelişmeleri
+4. VTR önerileri yaratıcı ve özgün olsun
+5. Uzmanlar Ankara merkezli: ODTÜ, Hacettepe, Ankara Üniversitesi, Bilkent, SETA, TEPAV, EDAM
+6. SADECE HTML döndür, başka hiçbir şey yazma"""
             }
         ]
     )
@@ -113,10 +117,17 @@ SADECE HTML döndür, açıklama yazma."""
 
     m = re.search(r'<section data-kat="ic-siyaset">([\s\S]*?)</section>', raw)
     if m: ic_siyaset = m.group(1)
+
     m = re.search(r'<section data-kat="uc-sayfa">([\s\S]*?)</section>', raw)
     if m: uc_sayfa = m.group(1)
+
     m = re.search(r'<section data-kat="dis-siyaset">([\s\S]*?)</section>', raw)
     if m: dis_siyaset = m.group(1)
+
+    # Bulunamazsa raw'dan fallback
+    if not dis_siyaset:
+        m = re.search(r'(?:data-kat="dis-siyaset"|Dış Siyaset)([\s\S]*?)(?:<section|</section>|$)', raw, re.IGNORECASE)
+        if m: dis_siyaset = m.group(1)
 
     if not ic_siyaset and not uc_sayfa and not dis_siyaset:
         content_html = f'<div style="padding:20px">{raw}</div>'
@@ -165,170 +176,51 @@ SADECE HTML döndür, açıklama yazma."""
 <style>
   * {{ box-sizing: border-box; margin: 0; padding: 0; }}
   body {{ font-family: 'Segoe UI', Arial, sans-serif; background:#FAF8F4; color:#1A1A1A; }}
-
   .header {{ background:#1A1A1A; color:#fff; padding:28px 32px; }}
   .header h1 {{ font-size:24px; letter-spacing:1px; margin-bottom:6px; }}
   .header p {{ color:#aac; font-size:13px; }}
-
   .accordion {{ max-width:1100px; margin:30px auto; padding:0 20px; }}
-
   .acc-item {{ margin-bottom:12px; border-radius:10px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.1); }}
-
-  .acc-header {{
-    background:#1A1A1A;
-    color:#F4B400;
-    padding:16px 24px;
-    font-size:15px;
-    font-weight:700;
-    letter-spacing:1px;
-    cursor:pointer;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    user-select:none;
-    transition: background 0.2s;
-  }}
+  .acc-header {{ background:#1A1A1A; color:#F4B400; padding:16px 24px; font-size:15px; font-weight:700; letter-spacing:1px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; user-select:none; transition:background 0.2s; }}
   .acc-header:hover {{ background:#2a2a2a; }}
-  .acc-arrow {{ font-size:13px; transition: transform 0.3s; }}
-
+  .acc-arrow {{ font-size:13px; }}
   .acc-body {{ background:#FAF8F4; }}
-
   .cards {{ display:flex; flex-wrap:wrap; gap:18px; padding:20px; }}
-
-  .card {{
-    background:#fff;
-    border-radius:10px;
-    box-shadow:0 2px 8px rgba(0,0,0,.08);
-    width:calc(50% - 9px);
-    min-width:300px;
-    border-top:4px solid #1a3a5c;
-    padding:18px 20px;
-  }}
-
-  .card-badge {{
-    display:inline-block;
-    font-size:10px;
-    font-weight:700;
-    padding:3px 10px;
-    border-radius:12px;
-    margin-bottom:10px;
-    color:#fff;
-    letter-spacing:1px;
-  }}
-
-  .card-title {{
-    font-size:15px;
-    font-weight:700;
-    line-height:1.4;
-    margin-bottom:6px;
-    color:#111;
-  }}
-
+  .card {{ background:#fff; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,.08); width:calc(50% - 9px); min-width:300px; border-top:4px solid #1a3a5c; padding:18px 20px; }}
+  .card-badge {{ display:inline-block; font-size:10px; font-weight:700; padding:3px 10px; border-radius:12px; margin-bottom:10px; color:#fff; letter-spacing:1px; }}
+  .card-title {{ font-size:15px; font-weight:700; line-height:1.4; margin-bottom:6px; color:#111; }}
   .card-meta {{ font-size:11px; color:#888; margin-bottom:10px; }}
-
-  .ozet {{
-    font-size:13px;
-    color:#1A1A1A;
-    line-height:1.7;
-    margin-bottom:14px;
-  }}
-
-  .vtr-block {{
-    background:#f0fce0;
-    border-left:4px solid #84CC16;
-    padding:12px 14px;
-    border-radius:0 6px 6px 0;
-    margin-bottom:12px;
-  }}
-
-  .vtr-block h4 {{
-    font-size:11px;
-    color:#3d6b00;
-    text-transform:uppercase;
-    letter-spacing:1px;
-    margin-bottom:8px;
-  }}
-
-  .vtr-item {{
-    font-size:13px;
-    line-height:1.6;
-    margin-bottom:6px;
-    padding-left:16px;
-    position:relative;
-    color:#1A1A1A;
-  }}
-  .vtr-item::before {{
-    content:"▶";
-    position:absolute;
-    left:0;
-    color:#84CC16;
-    font-size:9px;
-    top:4px;
-  }}
-
+  .ozet {{ font-size:13px; color:#1A1A1A; line-height:1.7; margin-bottom:14px; }}
+  .vtr-block {{ background:#f0fce0; border-left:4px solid #84CC16; padding:12px 14px; border-radius:0 6px 6px 0; margin-bottom:12px; }}
+  .vtr-block h4 {{ font-size:11px; color:#3d6b00; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; }}
+  .vtr-item {{ font-size:13px; line-height:1.6; margin-bottom:6px; padding-left:16px; position:relative; color:#1A1A1A; }}
+  .vtr-item::before {{ content:"▶"; position:absolute; left:0; color:#84CC16; font-size:9px; top:4px; }}
   .expert-block {{ margin-top:10px; }}
-  .expert-block h4 {{
-    font-size:11px;
-    color:#555;
-    text-transform:uppercase;
-    letter-spacing:1px;
-    margin-bottom:6px;
-  }}
-  .expert {{
-    font-size:12px;
-    line-height:1.6;
-    margin-bottom:4px;
-    padding-left:18px;
-    position:relative;
-    color:#1A1A1A;
-  }}
+  .expert-block h4 {{ font-size:11px; color:#555; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; }}
+  .expert {{ font-size:12px; line-height:1.6; margin-bottom:4px; padding-left:18px; position:relative; color:#1A1A1A; }}
   .expert::before {{ content:"👤"; position:absolute; left:0; font-size:10px; }}
   .expert strong {{ color:#1A1A1A; }}
-
-  .footer {{
-    background:#1A1A1A;
-    color:#aac;
-    text-align:center;
-    padding:20px;
-    font-size:12px;
-    margin-top:40px;
-  }}
-
-  @media(max-width:700px) {{
-    .card {{ width:100%; }}
-    .cards {{ padding:12px; gap:12px; }}
-    .header {{ padding:20px; }}
-  }}
+  .footer {{ background:#1A1A1A; color:#aac; text-align:center; padding:20px; font-size:12px; margin-top:40px; }}
+  @media(max-width:700px) {{ .card {{ width:100%; }} .cards {{ padding:12px; gap:12px; }} .header {{ padding:20px; }} }}
 </style>
 </head>
 <body>
-
 <div class="header">
   <h1>📺 Günlük Haber Brifing</h1>
   <p>{today_display} · Otomatik olarak oluşturuldu · Kategoriye tıklayarak aç/kapat</p>
 </div>
-
 {content_html}
-
 <div class="footer">Gazeteci Asistanı · Claude AI ile oluşturuldu</div>
-
 <script>
 function toggleAcc(header) {{
   const item = header.parentElement;
   const body = item.querySelector('.acc-body');
   const arrow = header.querySelector('.acc-arrow');
   const isOpen = body.style.display !== 'none';
-
-  if (isOpen) {{
-    body.style.display = 'none';
-    arrow.textContent = '▼';
-  }} else {{
-    body.style.display = 'block';
-    arrow.textContent = '▲';
-  }}
+  body.style.display = isOpen ? 'none' : 'block';
+  arrow.textContent = isOpen ? '▼' : '▲';
 }}
 </script>
-
 </body>
 </html>"""
 
